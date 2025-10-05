@@ -1,3 +1,36 @@
+# =========================
+# Reglas Visual Studio / .NET
+# =========================
+
+# Archivos de usuario y temporales
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Carpetas generadas
+.vs/
+bin/
+obj/
+TestResults/
+[Bb]uild/
+[Ll]og/
+[Aa]ppPackages/
+*.nupkg
+*.snupkg
+
+# Archivos de paquetes NuGet
+*.nuspec
+*.nuget.props
+*.nuget.targets
+packages/
+
+# Archivos de cobertura y debug
+*.coverage
+*.coveragexml
+*.dll
+*.pdb
+
 # Logs
 logs
 *.log
