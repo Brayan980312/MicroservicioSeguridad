@@ -7,13 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Entities\" />
     <Folder Include="Enums\" />
-    <Folder Include="Interfaces\" />
     <Folder Include="Exceptions\" />
-    <Folder Include="CustomEntities\" />
-    <Folder Include="Services\" />
+    <Folder Include="Interfaces\Repository\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Utilitarios\Utilitarios.csproj" />
   </ItemGroup>
 
 </Project>
