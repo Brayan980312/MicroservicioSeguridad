@@ -52,14 +52,5 @@
         }
 
         #endregion
-
-        #region DbSets
-
-        /// <summary>Registros de auditoría (tabla: Auditoria.Auditoria).
-        /// Representa los logs de petición/respuesta que genera la aplicación.
-        /// </summary>
-        public virtual DbSet<Auditoria> Auditorias { get; set; }
-
-        #endregion
     }
 }

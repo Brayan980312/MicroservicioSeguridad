@@ -56,8 +56,7 @@
             // Capturar datos de entrada (request)
             context.Request.EnableBuffering();
 
-            if (context.Request.ContentLength > 0 &&
-                context.Request.Body.CanSeek)
+            if (context.Request.ContentLength > 0 && context.Request.Body.CanSeek)
             {
                 using (var reader = new StreamReader(
                     context.Request.Body,
@@ -107,7 +106,7 @@
                 };
 
                 string json = JsonSerializer.Serialize(problem);
-
+                responseBody = json;
                 context.Response.ContentType = "application/json";
 
                 await context.Response.WriteAsync(json);
@@ -122,11 +121,11 @@
                     Status = (int)HttpStatusCode.InternalServerError,
                     Type = "Server Error",
                     Title = "Server Error",
-                    Detail = "An internal server has ocurred."
+                    Detail = e.Message+ "."
                 };
 
                 string json = JsonSerializer.Serialize(problem);
-
+                responseBody = json;
                 context.Response.ContentType = "application/json";
 
                 await context.Response.WriteAsync(json);
@@ -153,7 +152,19 @@
                     // Si falla el registro en BD, se ignora para no interrumpir la petición
                 }
 
-                context.Response.Body = originalResponseBodyStream;
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Body = originalResponseBodyStream;
+                    if (!string.IsNullOrEmpty(responseBody))
+                    {
+                        await context.Response.WriteAsync(responseBody);
+                    }
+                }
+                else
+                {
+                    // Si la respuesta ya empezó a escribirse, solo restauramos el stream
+                    context.Response.Body = originalResponseBodyStream;
+                }
             }
         }
     }
