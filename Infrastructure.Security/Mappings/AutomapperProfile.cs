@@ -2,6 +2,7 @@
 {
     using AutoMapper;
     using Domain.Security.CustomEntities.Params;
+    using Domain.Security.CustomEntities.Poco;
     using Domain.Security.DTOs;
     using Domain.Security.Entities;
 
@@ -18,6 +19,12 @@
             CreateMap<Auditoria, ParamsAuditoria>().ReverseMap();
             /// <summary>Mapea la entidad <see cref="Auditoria"/> a <see cref="AuditoriaDto"/> y viceversa.</summary>
             CreateMap<Auditoria, AuditoriaDto>().ReverseMap();
+            /// <summary>Mapea la entidad <see cref="UsuarioRol"/> a <see cref="UsuarioRolDto"/> y viceversa.</summary>
+            CreateMap<UsuarioRol, UsuarioRolDto>().ReverseMap();
+            /// <summary>Mapea la entidad <see cref="Usuario"/> a <see cref="UsuarioRegistroDto"/> y viceversa.</summary>
+            CreateMap<Usuario, UsuarioRegistroDto>().ReverseMap();
+            /// <summary>Mapea la entidad <see cref="IniciarSesionPoco"/> a <see cref="InicioSesionDto"/> y viceversa.</summary>
+            CreateMap<IniciarSesionPoco, InicioSesionDto>().ReverseMap();
 
         }
     }

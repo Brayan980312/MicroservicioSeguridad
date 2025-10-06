@@ -33,7 +33,6 @@
         }
 
         #endregion
-
         /// <summary>Endpoint para la consulta de ConsultarAuditoria.</summary>
         /// <param name="parametrosConsulta">Filtro para consultar la entidad de Auditoria.</param>
         /// <returns>Lista de AuditoriaDto.</returns>
@@ -45,6 +44,32 @@
 
             IEnumerable<Auditoria> auditorias = await auditoriaService.GetAllAsync();
             return Ok(_iMapper.Map<List<AuditoriaDto>>(auditorias?.ToList()));
+        }
+
+        /// <summary>Endpoint para realizar la creación de un nuevo usuario.</summary>
+        /// <param name="paramsCreacionUsuario">Parametros de entrada para la creación de un nuevo usuario.</param>
+        /// <returns> Objeto de tipo UsuarioRegistroDto creado.</returns>
+        [HttpPost]
+        [Route("RegistrarUsuario")]
+        public async Task<ActionResult<UsuarioRegistroDto>> RegistrarUsuario(ParamsCreacionUsuario paramsCreacionUsuario)
+        {
+            var usuarioService = _iServiceUnitOfWork.GetService<IUsuarioService>();
+
+            Usuario usuarioCreado = await usuarioService.CreateAsync(paramsCreacionUsuario);
+            return Ok(_iMapper.Map<UsuarioRegistroDto>(usuarioCreado));
+        }
+
+        /// <summary>Endpoint para realizar el logueo de un usuario.</summary>
+        /// <param name="paramsIniciarSesion">Parametros de entrada para el login de un usuario.</param>
+        /// <returns> Objeto con información del usuario y token JWT</returns>
+        [HttpPost]
+        [Route("LoginUsuario")]
+        public async Task<ActionResult<InicioSesionDto>> LoginUsuario(ParamsIniciarSesion paramsIniciarSesion)
+        {
+            var usuarioService = _iServiceUnitOfWork.GetService<IUsuarioService>();
+
+            IniciarSesionPoco usuarioLogueado = await usuarioService.LoginUsuario(paramsIniciarSesion);
+            return Ok(_iMapper.Map<InicioSesionDto>(usuarioLogueado));
         }
     }
 }
