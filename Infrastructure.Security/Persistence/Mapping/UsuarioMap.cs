@@ -23,15 +23,10 @@
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            builder.Property(e => e.UsuarioNombres)
+            builder.Property(e => e.UsuarioNombreCompleto)
                 .IsRequired()
                 .HasMaxLength(100)
                 .IsUnicode(false);
-
-            builder.Property(e => e.UsuarioApellidos)
-                .IsRequired()
-                .HasMaxLength(100)
-            .IsUnicode(false);
 
             builder.Property(e => e.UsuarioCorreo)
                 .IsRequired()
