@@ -57,11 +57,10 @@
                 Usuario usuarioNuevo = new Usuario
                 {
                     UsuarioIdentificacion = EncryptionHelper.Encrypt(paramsRegistrarUsuario.UsuarioIdentificacion),
-                    UsuarioNombres = paramsRegistrarUsuario.UsuarioNombres,
-                    UsuarioApellidos = paramsRegistrarUsuario.UsuarioApellidos,
+                    UsuarioNombreCompleto = paramsRegistrarUsuario.UsuarioNombreCompleto,
                     UsuarioCorreo = EncryptionHelper.Encrypt(paramsRegistrarUsuario.UsuarioCorreo),
                     UsuarioTelefono = EncryptionHelper.Encrypt(paramsRegistrarUsuario.UsuarioTelefono),
-                    UsuarioClave = SecurityHelper.HashPassword(paramsRegistrarUsuario.UsuarioContrasena),
+                    UsuarioClave = SecurityHelper.HashPassword(paramsRegistrarUsuario.UsuarioClave),
                 };
 
                 await _iUnitOfWork.Repository<Usuario>().AdicionarAsync(usuarioNuevo);
@@ -110,8 +109,7 @@
 
                 inicioSesion.UsuarioId = usuarioLogin.First().UsuarioId ?? 0;
                 inicioSesion.UsuarioIdentificacion = EncryptionHelper.Decrypt(usuarioLogin.First().UsuarioIdentificacion ?? "");
-                inicioSesion.UsuarioNombres = usuarioLogin.First().UsuarioNombres ?? "";
-                inicioSesion.UsuarioApellidos = usuarioLogin.First().UsuarioApellidos ?? "";
+                inicioSesion.UsuarioNombreCompleto = usuarioLogin.First().UsuarioNombreCompleto ?? "";
                 inicioSesion.UsuarioTelefono = EncryptionHelper.Decrypt(usuarioLogin.First().UsuarioTelefono ?? "");
                 inicioSesion.UsuarioCorreo = EncryptionHelper.Decrypt(usuarioLogin.First().UsuarioCorreo ?? "");
                 inicioSesion.Roles = rolesUsuario;
@@ -167,14 +165,9 @@
                 }
             }
 
-            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioNombres))
+            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioNombreCompleto))
             {
-                errores += string.Format(DefaultMessages.FieldRequiredWithName, "nombres");
-            }
-
-            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioApellidos))
-            {
-                errores += string.Format(DefaultMessages.FieldRequiredWithName, "apellidos");
+                errores += string.Format(DefaultMessages.FieldRequiredWithName, "nombre completo");
             }
 
             if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioCorreo))
@@ -206,24 +199,24 @@
 
             if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioTelefono))
             {
-                errores += string.Format(DefaultMessages.FieldRequiredWithName, "celular");
+                errores += string.Format(DefaultMessages.FieldRequiredWithName, "telefono");
             }
 
-            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioContrasena))
+            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioClave))
             {
                 errores += string.Format(DefaultMessages.FieldRequiredWithName, "clave");
             }
-            else if (!RegexHelper.EsPasswordFuerte(paramsRegistrarUsuario.UsuarioContrasena))
+            else if (!RegexHelper.EsPasswordFuerte(paramsRegistrarUsuario.UsuarioClave))
             {
                 errores += DefaultMessages.PasswordTooWeak;
             }
 
-            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioContrasenaConfirmar))
+            if (string.IsNullOrEmpty(paramsRegistrarUsuario.UsuarioClaveConfirmar))
             {
                 errores += string.Format(DefaultMessages.FieldRequiredWithName, "confirmar clave");
             }
 
-            if (paramsRegistrarUsuario.UsuarioContrasena != paramsRegistrarUsuario.UsuarioContrasenaConfirmar)
+            if (paramsRegistrarUsuario.UsuarioClave != paramsRegistrarUsuario.UsuarioClaveConfirmar)
             {
                 errores += DefaultMessages.PasswordsDoNotMatch;
             }
