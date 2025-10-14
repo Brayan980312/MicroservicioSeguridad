@@ -49,7 +49,7 @@
         /// <summary>Realiza la creación de un nuevo usuario del sistema (Solo estudiante).</summary>
         /// <param name="paramsRegistrarUsuario">Parámetros que contienen la información del usuario a registrar.</param>
         /// <returns>Un objeto de tipo Usuario que representa el usuario creado.</returns>
-        public async Task<Usuario> CreateAsync(ParamsCreacionUsuario paramsRegistrarUsuario)
+        public async Task<Usuario> CreateAsync(ParamsCreacionUsuario paramsRegistrarUsuario, int? userId = null)
         {
             using (var scope = new TransactionScope(TransactionScopeOption.Required, TimeSpan.FromMinutes(5), TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -136,6 +136,17 @@
             return (List<UsuarioRol>)usuarioLogin;
         }
 
+        /// <summary>Valida si el usuario existe en el sistema.</summary>
+        /// <param name="searchUsuario">Parametros con el que se validará el usuario en el sistema.</param>
+        /// <returns>Objeto del usuario consultado.</returns>
+        public async Task<Usuario> ConsultaUsuario(ParamsConsultaUsuario searchUsuario)
+        {
+            Usuario usuario = new Usuario();
+            Expression<Func<Usuario, bool>> filtro = searchUsuario.ToFilterExpression<Usuario>();
+            Usuario consultaUsuario = await _iUnitOfWork.Repository<Usuario>().ConsultarUnoAsync(filtro);          
+
+            return consultaUsuario == null ? usuario : consultaUsuario;
+        }
         #endregion
 
         #region ValidacionCampos

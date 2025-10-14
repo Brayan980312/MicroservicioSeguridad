@@ -71,5 +71,18 @@
             IniciarSesionPoco usuarioLogueado = await usuarioService.LoginUsuario(paramsIniciarSesion);
             return Ok(_iMapper.Map<InicioSesionDto>(usuarioLogueado));
         }
+
+        /// <summary>Endpoint para realizar la validación del usuario existente.</summary>
+        /// <param name="searchUsuario">Paramretros de entrada para la validación de un usuario existente.</param>
+        /// <returns> Objeto con la información del usuario existente.</returns>
+        [HttpGet]
+        [Route("ConsultaUsuario")]
+        public async Task<ActionResult<UsuarioDto>> ConsultaUsuario([FromQuery] ParamsConsultaUsuario searchUsuario)
+        {
+            IUsuarioService Service = _iServiceUnitOfWork.GetService<IUsuarioService>();
+
+            Usuario usuario = await Service.ConsultaUsuario(searchUsuario);
+            return Ok(_iMapper.Map<UsuarioDto>(usuario));
+        }
     }
 }

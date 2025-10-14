@@ -43,7 +43,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<Auditoria> CreateAsync(ParamsAuditoria paramsCreate)
+        public async Task<Auditoria> CreateAsync(ParamsAuditoria paramsCreate, int? userId = null)
         {
             Auditoria newAuditoria = _iMapper.Map<Auditoria>(paramsCreate);
             await _iUnitOfWork.Repository<Auditoria>().AdicionarAsync(newAuditoria);

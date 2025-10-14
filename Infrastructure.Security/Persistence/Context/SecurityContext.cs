@@ -1,6 +1,5 @@
 ﻿namespace Infrastructure.Security.Persistence.Context
 {
-    using Domain.Security.Entities;
     using Microsoft.EntityFrameworkCore;
 
     /// <summary>DbContext para las entidades relacionadas con seguridad y auditoría.

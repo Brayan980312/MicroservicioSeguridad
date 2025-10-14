@@ -15,5 +15,11 @@
         /// <param name="paramsIniciarSesion">Parámetros que contienen la información del usuario a loguear.</param>
         /// <returns>Objeto con el token JWT y la información del usuario.</returns>
         Task<IniciarSesionPoco> LoginUsuario(ParamsIniciarSesion paramsIniciarSesion);
+
+        /// <summary>Valida si el usuario existe en el sistema.</summary>
+        /// <param name="searchUsuario">Parametros con el que se validará el usuario en el sistema.</param>
+        /// <returns>Objeto del usuario consultado.</returns>
+        Task<Usuario> ConsultaUsuario(ParamsConsultaUsuario searchUsuario);
+        
     }
 }

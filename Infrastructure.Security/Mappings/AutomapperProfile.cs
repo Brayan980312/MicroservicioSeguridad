@@ -25,6 +25,9 @@
             CreateMap<Usuario, UsuarioRegistroDto>().ReverseMap();
             /// <summary>Mapea la entidad <see cref="IniciarSesionPoco"/> a <see cref="InicioSesionDto"/> y viceversa.</summary>
             CreateMap<IniciarSesionPoco, InicioSesionDto>().ReverseMap();
+            /// <summary>Mapea la entidad <see cref="Usuario"/> a <see cref="UsuarioDto"/> y viceversa.</summary>
+            CreateMap<Usuario, UsuarioDto>().ReverseMap();
+            
 
         }
     }
