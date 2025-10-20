@@ -1,7 +1,9 @@
 ﻿namespace Infrastructure.Security.Extensions
 {
+    using Domain.Security.Interfaces.JWT;
     using Domain.Security.Interfaces.UnitOfWork;
     using Domain.Security.Services.UnitOfWork;
+    using Infrastructure.Security.JWT;
     using Infrastructure.Security.Persistence.Context;
     using Infrastructure.Security.Repository;
     using Microsoft.EntityFrameworkCore;
@@ -38,6 +40,9 @@
             // Registro de las unidades de trabajo (Unit of Work).
             services.AddTransient<IServiceUnitOfWork, ServiceUnitOfWork>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            // Registro de servicio JWT
+            services.AddTransient<IJwtService, JwtService>();
 
             // Registro automático de servicios por convención.
             RegisterServicesByConvention(services);

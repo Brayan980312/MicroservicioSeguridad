@@ -2,6 +2,7 @@
 {
     using Domain.Security.CustomEntities.Params;
     using Domain.Security.CustomEntities.Poco;
+    using Domain.Security.DTOs;
     using Domain.Security.Entities;
     using Utilitarios.Contracts.Crud;
 
@@ -20,6 +21,11 @@
         /// <param name="searchUsuario">Parametros con el que se validará el usuario en el sistema.</param>
         /// <returns>Objeto del usuario consultado.</returns>
         Task<Usuario> ConsultaUsuario(ParamsConsultaUsuario searchUsuario);
-        
+
+        /// <summary>Genera un nuevo par de tokens (JWT y Refresh Token) a partir de un Refresh Token válido.</summary>
+        /// <param name="refreshToken">Token de refresco previamente emitido al usuario durante el inicio de sesión.</param>
+        /// <returns>Un nuevo objeto <see cref="InicioSesionDto"/> con los tokens actualizados y la información básica del usuario autenticado.</returns>
+        Task<IniciarSesionPoco> RefrescarTokenAsync(string refreshToken);
+
     }
 }

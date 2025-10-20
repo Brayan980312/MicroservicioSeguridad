@@ -7,6 +7,7 @@
     using Domain.Security.Entities;
     using Domain.Security.Interfaces.Security;
     using Domain.Security.Interfaces.UnitOfWork;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     
     [Route("api/[controller]")]
@@ -57,6 +58,19 @@
             var usuarioService = _iServiceUnitOfWork.GetService<IUsuarioService>();
 
             IniciarSesionPoco usuarioLogueado = await usuarioService.LoginUsuario(paramsIniciarSesion);
+            return Ok(_iMapper.Map<InicioSesionDto>(usuarioLogueado));
+        }
+
+        /// <summary>Endpoint para refrescar un token vencido.</summary>
+        /// <param name="paramsRefreshToken">Parametros de entrada que contiene el refresh token.</param>
+        /// <returns> Objeto con información del usuario y token JWT</returns>
+        [HttpPost]
+        [Route("RefreshToken")]
+        public async Task<ActionResult<InicioSesionDto>> RefreshToken(ParamsRefreshToken paramsRefreshToken)
+        {
+            var usuarioService = _iServiceUnitOfWork.GetService<IUsuarioService>();
+
+            IniciarSesionPoco usuarioLogueado = await usuarioService.RefrescarTokenAsync(paramsRefreshToken.RefreshToken);
             return Ok(_iMapper.Map<InicioSesionDto>(usuarioLogueado));
         }
 

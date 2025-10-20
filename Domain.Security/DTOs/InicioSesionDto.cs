@@ -5,8 +5,14 @@ namespace Domain.Security.DTOs
 
     public class InicioSesionDto
     {
-        /// <summary>Token generado por el JWT para la usabilidad en el sistema.</summary>
-        public string TokenJWT { get; set; }
+        /// <summary>Token JWT generado para la autenticación del usuario.</summary>
+        public string AccessToken { get; set; }
+
+        /// <summary>Token utilizado para renovar el JWT sin volver a iniciar sesión.</summary>
+        public string RefreshToken { get; set; }
+
+        /// <summary>Fecha y hora de expiración del JWT.</summary>
+        public DateTime ExpiraEn { get; set; }
 
         /// <summary>Identificador único del Usuario.</summary>
         public int UsuarioId { get; set; }
