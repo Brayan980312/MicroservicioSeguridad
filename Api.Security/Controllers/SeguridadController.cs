@@ -33,18 +33,6 @@
         }
 
         #endregion
-        /// <summary>Endpoint para la consulta de ConsultarAuditoria.</summary>
-        /// <param name="parametrosConsulta">Filtro para consultar la entidad de Auditoria.</param>
-        /// <returns>Lista de AuditoriaDto.</returns>
-        [HttpGet]
-        [Route("ConsultarAuditoria")]
-        public async Task<ActionResult<List<AuditoriaDto>>> ConsultarAuditoria([FromQuery] ParamsAuditoria parametrosConsulta)
-        {
-            var auditoriaService = _iServiceUnitOfWork.GetService<IAuditoriaService>();
-
-            IEnumerable<Auditoria> auditorias = await auditoriaService.GetAllAsync();
-            return Ok(_iMapper.Map<List<AuditoriaDto>>(auditorias?.ToList()));
-        }
 
         /// <summary>Endpoint para realizar la creación de un nuevo usuario.</summary>
         /// <param name="paramsCreacionUsuario">Parametros de entrada para la creación de un nuevo usuario.</param>
