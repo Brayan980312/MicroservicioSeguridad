@@ -51,26 +51,19 @@ Antes de ejecutar el proyecto, asegúrate de tener instalado:
 4. Configura el archivo appsettings.json para que apunte a tu instancia de base de datos:
 
 ```bash
-   {
+{
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning"
     }
   },
-  "AllowedHosts": "*",
   "ConnectionStrings": {
     "FlyHub": "Server=<SERVIDOR>;Database=<BASE_DATOS>;Persist Security Info=True;User ID=<USUARIO>;Password=<CLAVE>;MultipleActiveResultSets=True;App=EntityFramework;Encrypt=False"
   },
-  "JwtSettings": {
-    "Issuer": "ProyectoFlyHub.Api",
-    "Audience": "ProyectoFlyHub.Clientes",
-    "SecretKey": "NPBA10338052213015585139PESM52542135"
-  },
-  "ExternalServices": {
-    "BaseUrl": "https://localhost:7241/api/"
-  }
+  "AllowedHosts": "*"
 }
+
 ```
 
 ---
@@ -80,8 +73,7 @@ Antes de ejecutar el proyecto, asegúrate de tener instalado:
 El proyecto sigue **arquitectura limpia** con capas bien definidas:
 
 - **API**: Controladores que exponen los endpoints
-- **Application / Services**: Lógica de negocio y validaciones
-- **Domain / DTOs**: Modelos de dominio y Data Transfer Objects
+- **Domain / DTOs**: Modelos de dominio y Data Transfer Objects, Lógica de negocio y validaciones
 - **Infrastructure / Repository**: Acceso a base de datos
 - **Utilitarios**: Funcionalidades compartidas (proyecto externo)
 - **Patrones aplicados**: Repository, Service Layer, DTO, Service Locator, Unit of Work
