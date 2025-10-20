@@ -16,6 +16,7 @@ El proyecto sigue **arquitectura limpia** y respeta los principios **SOLID**, ap
 - **Encriptación de datos sensibles**
 - **Patrones de diseño:** Repository, Service Layer, DTO, Service Locator, Unit of Work
 - **Principios de arquitectura:** SOLID, arquitectura limpia
+- **Documentación de API:** Swagger/OpenAPI para visualización y prueba de endpoints
 - **Dependencias externas:** Proyecto `Utilitarios` ([https://github.com/Brayan980312/Utilitarios](https://github.com/Brayan980312/Utilitarios))
 
 ---
