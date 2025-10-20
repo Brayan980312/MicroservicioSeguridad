@@ -15,6 +15,8 @@
     using Domain.Security.Enums;
     using Utilitarios;
     using Utilitarios.Constants;
+    using Domain.Security.Interfaces.JWT;
+    using Domain.Security.DTOs;
 
     /// <summary> Implementación reglas de negocio para el servicio de Usuario.</summary>
     public class UsuarioService : IUsuarioService
@@ -27,7 +29,7 @@
         /// <summary>Inyeccion de convertidor o resolutor de modelos.</summary>
         private readonly IMapper _iMapper;
 
-        private readonly JwtService _jwtService = new JwtService();
+        private readonly IJwtService _jwtService;
 
         #endregion
 
@@ -36,10 +38,11 @@
         ///<summary>Inicializa una nueva instancia de la clase UsuarioService.</summary>
         /// <param name="iUnitOfWork">Inyección de dependencias de la unidad de trabajo - UnitOfWork.</param>
         /// <param name="iMapper">Inyección de convertidor o resolutor de modelos.</param>
-        public UsuarioService(IUnitOfWork iUnitOfWork, IMapper iMapper)
+        public UsuarioService(IUnitOfWork iUnitOfWork, IMapper iMapper, IJwtService jwtService)
         {
             _iUnitOfWork = iUnitOfWork;
             _iMapper = iMapper;
+            _jwtService = jwtService;
         }
 
         #endregion
@@ -101,11 +104,13 @@
             {
                 /* Asociar la información del usuario logueado */
                 List<UsuarioRol> rolesUsuario = await ConsultarRolesUsuario(usuarioLogin.First().UsuarioId ?? 0);
-                string tokenJWT = _jwtService.GenerateToken(
-                    userId: usuarioLogin.First().UsuarioId ?? 0,
-                    username: usuarioLogin.First().UsuarioIdentificacion,
+                string tokenJWT = _jwtService.GenerarJwtToken(
+                    usuarioId: usuarioLogin.First().UsuarioId ?? 0,
+                    usuarioNombre: usuarioLogin.First().UsuarioIdentificacion,
                     roles: rolesUsuario.Select(r => r.RolId.ToString()).ToArray()
                 );
+
+                RefreshTokens refreshToken = await _jwtService.GenerarRefreshTokenAsync(usuarioLogin.First().UsuarioId ?? 0);
 
                 inicioSesion.UsuarioId = usuarioLogin.First().UsuarioId ?? 0;
                 inicioSesion.UsuarioIdentificacion = EncryptionHelper.Decrypt(usuarioLogin.First().UsuarioIdentificacion ?? "");
@@ -113,7 +118,9 @@
                 inicioSesion.UsuarioTelefono = EncryptionHelper.Decrypt(usuarioLogin.First().UsuarioTelefono ?? "");
                 inicioSesion.UsuarioCorreo = EncryptionHelper.Decrypt(usuarioLogin.First().UsuarioCorreo ?? "");
                 inicioSesion.Roles = rolesUsuario;
-                inicioSesion.TokenJWT = tokenJWT;
+                inicioSesion.AccessToken = tokenJWT;
+                inicioSesion.RefreshToken = refreshToken.Token;
+                inicioSesion.ExpiraEn = refreshToken.ExpiraEn;
             }
 
             return inicioSesion;
@@ -146,6 +153,66 @@
             Usuario consultaUsuario = await _iUnitOfWork.Repository<Usuario>().ConsultarUnoAsync(filtro);          
 
             return consultaUsuario == null ? usuario : consultaUsuario;
+        }
+
+        /// <summary>
+        /// Genera un nuevo par de tokens (JWT y Refresh Token) a partir de un Refresh Token válido.
+        /// </summary>
+        /// <param name="refreshToken">Token de refresco previamente emitido al usuario durante el inicio de sesión.</param>
+        /// <returns>
+        /// Un objeto <see cref="InicioSesionDto"/> con los tokens actualizados y 
+        /// la información básica del usuario autenticado.
+        /// </returns>
+        /// <exception cref="UnauthorizedAccessException">
+        /// Se lanza si el Refresh Token no existe, expiró o fue invalidado.
+        /// </exception>
+        public async Task<IniciarSesionPoco> RefrescarTokenAsync(string refreshToken)
+        {
+            // Validar el token de refresco
+            RefreshTokens tokenActual = await ValidarCamposRefrescarToken(refreshToken);
+
+            // Obtener el usuario y sus roles
+            Usuario usuario = await _iUnitOfWork.Repository<Usuario>().ConsultarPorIdAsync(tokenActual.UsuarioId);
+            List<UsuarioRol> rolesUsuario = await ConsultarRolesUsuario(usuario.UsuarioId ?? 0);
+            string[] rolesArray = rolesUsuario.Select(r => r.RolId.ToString()).ToArray();
+
+            // Generar nuevo JWT y Refresh Token
+            string nuevoTokenJWT = _jwtService.GenerarJwtToken(
+                usuarioId: usuario.UsuarioId ?? 0,
+                usuarioNombre: usuario.UsuarioIdentificacion ?? "",
+                roles: rolesArray
+            );
+
+            RefreshTokens nuevoRefreshToken = new RefreshTokens
+            {
+                UsuarioId = usuario.UsuarioId ?? 0,
+                Token = Guid.NewGuid().ToString("N"),
+                ExpiraEn = DateTime.UtcNow.AddDays(7),
+                Revocado = false
+            };
+
+            // Marcar el token anterior como revocado y guardar ambos cambios
+            tokenActual.Revocado = true;
+
+            await _iUnitOfWork.Repository<RefreshTokens>().ActualizarAsync(tokenActual);
+            await _iUnitOfWork.Repository<RefreshTokens>().AdicionarAsync(nuevoRefreshToken);
+            await _iUnitOfWork.SaveChangesAsync();
+
+            // Armar respuesta
+            IniciarSesionPoco resultado = new IniciarSesionPoco
+            {
+                AccessToken = nuevoTokenJWT,
+                RefreshToken = nuevoRefreshToken.Token,
+                ExpiraEn = nuevoRefreshToken.ExpiraEn,
+                UsuarioId = usuario.UsuarioId ?? 0,
+                UsuarioIdentificacion = EncryptionHelper.Decrypt(usuario.UsuarioIdentificacion ?? ""),
+                UsuarioNombreCompleto = usuario.UsuarioNombreCompleto ?? "",
+                UsuarioCorreo = EncryptionHelper.Decrypt(usuario.UsuarioCorreo ?? ""),
+                UsuarioTelefono = EncryptionHelper.Decrypt(usuario.UsuarioTelefono ?? ""),
+                Roles = rolesUsuario
+            };
+
+            return resultado;
         }
         #endregion
 
@@ -289,6 +356,59 @@
             {
                 throw new ValidationException(errores);
             }
+        }
+
+        /// <summary>
+        /// Realiza las validaciones de negocio necesarias antes de refrescar un token JWT.
+        /// </summary>
+        /// <param name="refreshToken">Token de refresco enviado por el cliente.</param>
+        /// <returns>Entidad RefreshToken válida si pasa las validaciones.</returns>
+        /// <exception cref="ValidationException">Si el token no cumple alguna condición de negocio.</exception>
+        private async Task<RefreshTokens> ValidarCamposRefrescarToken(string refreshToken)
+        {
+            string errores = string.Empty;
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                errores += string.Format(DefaultMessages.FieldRequiredWithName, "refresh token");
+                throw new ValidationException(errores);
+            }
+
+            // Buscar el token en la base de datos
+            Expression<Func<RefreshTokens, bool>> filtro = t => t.Token == refreshToken;
+            IEnumerable<RefreshTokens> tokens = await _iUnitOfWork.Repository<RefreshTokens>().ConsultarListaAsync(filtro);
+            RefreshTokens tokenActual = tokens.FirstOrDefault();
+
+            if (tokenActual == null)
+            {
+                errores += "El token de refresco no existe.";
+            }
+            else
+            {
+                if (tokenActual.Revocado)
+                {
+                    errores += "El token de refresco fue revocado."; 
+                }
+
+                if (tokenActual.ExpiraEn <= DateTime.UtcNow)
+                {
+                    errores += "El token de refresco ha expirado."; 
+                }
+
+                // Verificar que el usuario exista
+                Usuario usuario = await _iUnitOfWork.Repository<Usuario>().ConsultarPorIdAsync(tokenActual.UsuarioId);
+                if (usuario == null)
+                {
+                    errores += "No se encontró el usuario asociado al token."; 
+                }
+            }
+
+            if (!string.IsNullOrEmpty(errores))
+            {
+                throw new ValidationException(errores);
+            }
+
+            return tokenActual;
         }
         #endregion
     }
